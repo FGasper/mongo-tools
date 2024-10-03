@@ -24,6 +24,9 @@ jobs:
       - run: apt install -y git
 
       - uses: actions/checkout@v4
+        with:
+          set-safe-directory: true
+
       - uses: actions/setup-go@v5
         with:
           go-version-file: 'go.mod'
