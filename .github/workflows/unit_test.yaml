@@ -10,6 +10,15 @@ jobs:
   unit:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        os:
+          - evg_variant: ubuntu2404
+            image: ubuntu/ubuntu:24.04
+
+    container:
+      image: ${{ matrix.os.image }}
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -25,3 +34,5 @@ jobs:
       - run: lsb_release -a
 
       - run: ./make test:unit
+        env:
+          EVG_VARIANT: ${{ matrix.os.evg_variant }}
