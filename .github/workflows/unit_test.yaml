@@ -8,8 +8,6 @@ on:
 
 jobs:
   unit:
-    runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
@@ -29,6 +27,11 @@ jobs:
           - evg_variant: rhel93
             image: redhat/ubi9:9.3
             prep: dnf install -y git gcc krb5-devel
+
+          - evg_variant: macos
+            runs_on: macos-latest
+
+    runs-on: ${{ matrix.os.runs_on || "ubuntu-latest" }}
 
     container:
       image: ${{ matrix.os.image }}
