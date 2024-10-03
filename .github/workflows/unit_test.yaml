@@ -7,30 +7,30 @@ on:
   pull_request:
 
 jobs:
-  unit:
+  testing:
     strategy:
       fail-fast: false
       matrix:
         os:
           - evg_variant: ubuntu2404
             image: ubuntu:24.04
-            prep: apt update && apt install -y git gcc libkrb5-dev
+            prep: apt update && apt install -y git gcc libkrb5-dev python3
 
           - evg_variant: ubuntu2204
             image: ubuntu:22.04
-            prep: apt update && apt install -y git gcc libkrb5-dev
+            prep: apt update && apt install -y git gcc libkrb5-dev python3
 
           - evg_variant: ubuntu2004
             image: ubuntu:20.04
-            prep: apt update && apt install -y git gcc libkrb5-dev
+            prep: apt update && apt install -y git gcc libkrb5-dev python3
 
           - evg_variant: rhel93
             image: redhat/ubi9:9.3
-            prep: dnf install -y git gcc krb5-devel
+            prep: dnf install -y git gcc krb5-devel python3
 
           - evg_variant: amazon2023
             image: amazonlinux:2023
-            prep: dnf install -y git gcc krb5-devel
+            prep: dnf install -y git gcc krb5-devel python3
 
           - evg_variant: macos
             runs_on: macos-latest
@@ -54,7 +54,13 @@ jobs:
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
       - run: git fetch upstream --prune --unshallow --tags
 
-      - run: ./make test:unit --verbose
+      - name: Unit tests
+        run: ./make test:unit --verbose
         env:
           EVG_VARIANT: ${{ matrix.os.evg_variant }}
-          TOOLS_TESTING_UNIT: 1
+
+      - name: Integration tests
+        run: |
+            pip3 install 'mtools[all]'
+            mlaunch init --replicaset --port 33333
+            ./make test:integration --verbose
