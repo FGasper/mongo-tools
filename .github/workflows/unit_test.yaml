@@ -34,7 +34,7 @@ jobs:
       - run: env
 
       # So `git describe` works on forked branches:
-      - run: git config --global --add safe.directory ${{ github.workspace }}
+      - run: git config --global --add safe.directory ${{ env.GITHUB_WORKSPACE }}
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
       - run: git fetch upstream --prune --unshallow --tags
 
