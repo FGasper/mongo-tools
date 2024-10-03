@@ -20,15 +20,13 @@ jobs:
       image: ${{ matrix.os.image }}
 
     steps:
-      - uses: actions/checkout@v4
-      - run: ls -la
+      - run: apt update
+      - run: apt install -y git
 
+      - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: 'go.mod'
-
-      - run: apt update
-      - run: apt install -y git
 
       # So `git describe` works on forked branches:
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
