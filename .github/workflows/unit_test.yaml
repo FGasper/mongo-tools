@@ -14,23 +14,23 @@ jobs:
         os:
           - evg_variant: ubuntu2404
             image: ubuntu:24.04
-            prep: apt update && apt install -y git gcc libkrb5-dev python3
+            prep: apt update && apt install -y git gcc libkrb5-dev python3-pip
 
           - evg_variant: ubuntu2204
             image: ubuntu:22.04
-            prep: apt update && apt install -y git gcc libkrb5-dev python3
+            prep: apt update && apt install -y git gcc libkrb5-dev python3-pip
 
           - evg_variant: ubuntu2004
             image: ubuntu:20.04
-            prep: apt update && apt install -y git gcc libkrb5-dev python3
+            prep: apt update && apt install -y git gcc libkrb5-dev python3-pip
 
           - evg_variant: rhel93
             image: redhat/ubi9:9.3
-            prep: dnf install -y git gcc krb5-devel python3
+            prep: dnf install -y git gcc krb5-devel python3-pip
 
           - evg_variant: amazon2023
             image: amazonlinux:2023
-            prep: dnf install -y git gcc krb5-devel python3
+            prep: dnf install -y git gcc krb5-devel python3-pip
 
           - evg_variant: macos
             runs_on: macos-latest
