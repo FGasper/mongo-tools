@@ -15,7 +15,7 @@ jobs:
         os:
           - evg_variant: ubuntu2404
             image: ubuntu:24.04
-            prep: apt update && apt install -y git gcc
+            prep: apt update && apt install -y git gcc libkrb5-dev
 
     container:
       image: ${{ matrix.os.image }}
