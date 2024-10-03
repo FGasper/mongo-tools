@@ -57,6 +57,11 @@ jobs:
           mongodb-replica-set: test-rs
           mongodb-port: 33333 # for integration tests
 
+      - if: ${{ !matrix.os.runs_on }}
+        run: |
+          apt install -y iproute2
+          ss -a
+
       # So `git describe` works on forked branches:
       - run: git config --global --add safe.directory $GITHUB_WORKSPACE
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
@@ -69,9 +74,6 @@ jobs:
 
       - name: Integration tests
         if: ${{ !matrix.os.runs_on }}
-        run: |
-          apt install -y iproute2
-          ss -a
-          ./make test:integration --verbose
+        run: ./make test:integration --verbose
         env:
           EVG_VARIANT: ${{ matrix.os.evg_variant }}
