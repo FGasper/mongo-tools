@@ -51,6 +51,7 @@ jobs:
           go-version-file: 'go.mod'
 
       - uses: supercharge/mongodb-github-action@1.11.0
+        if: ${{ !matrix.os.runs_on }}
         with:
           mongodb-version: ${{ matrix.mongodb_version }}
           mongodb-replica-set: test-rs
@@ -69,5 +70,6 @@ jobs:
       - name: Integration tests
         if: ${{ !matrix.os.runs_on }}
         run: |
-            ./make test:integration --verbose
-            EVG_VARIANT: ${{ matrix.os.evg_variant }}
+          ./make test:integration --verbose
+        env:
+          EVG_VARIANT: ${{ matrix.os.evg_variant }}
