@@ -17,6 +17,26 @@ jobs:
             image: ubuntu:24.04
             prep: apt update && apt install -y git gcc libkrb5-dev
 
+          - evg_variant: ubuntu2204
+            image: ubuntu:22.04
+            prep: apt update && apt install -y git gcc libkrb5-dev
+
+          - evg_variant: ubuntu2004
+            image: ubuntu:20.04
+            prep: apt update && apt install -y git gcc libkrb5-dev
+
+          - evg_variant: ubuntu1804
+            image: ubuntu:18.04
+            prep: apt update && apt install -y git gcc libkrb5-dev
+
+          - evg_variant: ubuntu1604
+            image: ubuntu:16.04
+            prep: apt update && apt install -y git gcc libkrb5-dev
+
+          - evg_variant: rhel93
+            image: redhat/ubi9:9.3
+            prep: dnf install -y git gcc
+
     container:
       image: ${{ matrix.os.image }}
 
