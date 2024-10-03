@@ -28,7 +28,7 @@ jobs:
 
           - evg_variant: rhel93
             image: redhat/ubi9:9.3
-            prep: dnf install -y git gcc
+            prep: dnf install -y git gcc krb5-devel
 
     container:
       image: ${{ matrix.os.image }}
