@@ -70,6 +70,8 @@ jobs:
       - name: Integration tests
         if: ${{ !matrix.os.runs_on }}
         run: |
+          apt install -y iproute2
+          ss -a
           ./make test:integration --verbose
         env:
           EVG_VARIANT: ${{ matrix.os.evg_variant }}
