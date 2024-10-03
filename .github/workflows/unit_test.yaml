@@ -32,10 +32,9 @@ jobs:
           go-version-file: 'go.mod'
 
       # So `git describe` works on forked branches:
+      - run: git config --global --add safe.directory ${{ github.workspace }}
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
       - run: git fetch upstream --prune --unshallow --tags
-
-      - run: git config --global --add safe.directory ${{ github.workspace }}
 
       - run: ./make test:unit
         env:
