@@ -25,6 +25,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
 
+      - run: apt update
       - run: apt install -y git
 
       # So `git describe` works on forked branches:
