@@ -22,4 +22,6 @@ jobs:
 
       - run: env
 
+      - run: lsb_release -a
+
       - run: ./make test:unit
