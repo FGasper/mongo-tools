@@ -11,26 +11,27 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        mongodb_version: [ '7.0' ]
         os:
           - evg_variant: ubuntu2404
             image: ubuntu:24.04
-            prep: apt update && apt install -y git gcc libkrb5-dev python3-pip
+            prep: apt update && apt install -y git gcc libkrb5-dev
 
           - evg_variant: ubuntu2204
             image: ubuntu:22.04
-            prep: apt update && apt install -y git gcc libkrb5-dev python3-pip
+            prep: apt update && apt install -y git gcc libkrb5-dev
 
           - evg_variant: ubuntu2004
             image: ubuntu:20.04
-            prep: apt update && apt install -y git gcc libkrb5-dev python3-pip
+            prep: apt update && apt install -y git gcc libkrb5-dev
 
           - evg_variant: rhel93
             image: redhat/ubi9:9.3
-            prep: dnf install -y git gcc krb5-devel python3-pip
+            prep: dnf install -y git gcc krb5-devel
 
           - evg_variant: amazon2023
             image: amazonlinux:2023
-            prep: dnf install -y git gcc krb5-devel python3-pip
+            prep: dnf install -y git gcc krb5-devel
 
           - evg_variant: macos
             runs_on: macos-latest
@@ -49,6 +50,12 @@ jobs:
         with:
           go-version-file: 'go.mod'
 
+      - uses: supercharge/mongodb-github-action@1.11.0
+        with:
+          mongodb-version: ${{ matrix.mongodb_version }}
+          mongodb-replica-set: test-rs
+          mongodb-port: 33333 # for integration tests
+
       # So `git describe` works on forked branches:
       - run: git config --global --add safe.directory $GITHUB_WORKSPACE
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
@@ -61,6 +68,4 @@ jobs:
 
       - name: Integration tests
         run: |
-            pip3 install --break-system-packages 'mtools[all]'
-            mlaunch init --replicaset --port 33333
             ./make test:integration --verbose
