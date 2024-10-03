@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         os:
           - evg_variant: ubuntu2404
@@ -23,14 +24,6 @@ jobs:
 
           - evg_variant: ubuntu2004
             image: ubuntu:20.04
-            prep: apt update && apt install -y git gcc libkrb5-dev
-
-          - evg_variant: ubuntu1804
-            image: ubuntu:18.04
-            prep: apt update && apt install -y git gcc libkrb5-dev
-
-          - evg_variant: ubuntu1604
-            image: ubuntu:16.04
             prep: apt update && apt install -y git gcc libkrb5-dev
 
           - evg_variant: rhel93
