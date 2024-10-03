@@ -28,6 +28,10 @@ jobs:
             image: redhat/ubi9:9.3
             prep: dnf install -y git gcc krb5-devel
 
+          - evg_variant: amazon2023
+            image: amazonlinux:2023
+            prep: dnf install -y git gcc krb5-devel
+
           - evg_variant: macos
             runs_on: macos-latest
 
