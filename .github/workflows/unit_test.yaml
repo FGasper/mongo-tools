@@ -17,6 +17,6 @@ jobs:
           go-version-file: 'go.mod'
 
       # So `git describe` works:
-      - run: git fetch --prune --unshallow
+      - run: git fetch --prune --unshallow --tags
 
       - run: ./make test:unit
