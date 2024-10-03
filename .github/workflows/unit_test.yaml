@@ -34,7 +34,7 @@ jobs:
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
       - run: git fetch upstream --prune --unshallow --tags
 
-      - run: ./make test:unit
+      - run: ./make test:unit --verbose
         env:
           EVG_VARIANT: ${{ matrix.os.evg_variant }}
           TOOLS_TESTING_UNIT: 1
