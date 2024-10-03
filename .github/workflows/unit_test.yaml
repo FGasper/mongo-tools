@@ -25,7 +25,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
 
-      - run: sudo apt install -y git
+      - run: apt install -y git
 
       # So `git describe` works on forked branches:
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
