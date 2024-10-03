@@ -67,5 +67,7 @@ jobs:
       #     EVG_VARIANT: ${{ matrix.os.evg_variant }}
 
       - name: Integration tests
+        if: ${{ !matrix.os.runs_on }}
         run: |
             ./make test:integration --verbose
+            EVG_VARIANT: ${{ matrix.os.evg_variant }}
