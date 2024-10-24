@@ -55,7 +55,7 @@ jobs:
         with:
           mongodb-version: ${{ matrix.mongodb_version }}
           mongodb-replica-set: test-rs
-          #mongodb-port: 33333 # for integration tests
+          mongodb-port: 33333 # for integration tests
 
       - if: ${{ !matrix.os.runs_on }}
         run: |
