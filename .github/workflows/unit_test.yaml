@@ -61,6 +61,7 @@ jobs:
         run: |
           apt install -y iproute2
           ss -a
+          docker ps
 
       # So `git describe` works on forked branches:
       - run: git config --global --add safe.directory $GITHUB_WORKSPACE
