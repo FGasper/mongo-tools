@@ -63,7 +63,7 @@ jobs:
           ss -a
 
       - if: ${{ !matrix.os.runs_on }}
-        run: docker help; docker container ls
+        run: apt install -y docker; docker help; docker container ls
 
       # So `git describe` works on forked branches:
       - run: git config --global --add safe.directory $GITHUB_WORKSPACE
