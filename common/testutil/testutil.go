@@ -99,8 +99,11 @@ func GetFCV(s *mongo.Client) string {
 		Version string
 	}
 	res := coll.FindOne(context.TODO(), bson.M{"_id": "featureCompatibilityVersion"})
-	//nolint:errcheck
-	res.Decode(&result)
+
+	err := res.Decode(&result)
+	if err != nil {
+		panic(fmt.Sprintf("failed to fetch FCV: %+v", err))
+	}
 	return result.Version
 }
 
