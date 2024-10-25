@@ -103,8 +103,9 @@ func getBasicToolOptions() *options.ToolOptions {
 			DB:         testDb,
 			Collection: testCollection,
 		},
-		Auth: &auth,
-		URI:  &options.URI{},
+		Connection: &options.Connection{},
+		Auth:       &auth,
+		URI:        &options.URI{},
 	}
 
 	if uriStr := os.Getenv("TOOLS_TESTING_MONGOD"); uriStr != "" {
