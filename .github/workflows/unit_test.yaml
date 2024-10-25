@@ -11,7 +11,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mongodb_version: [ '6.0' ]
+        mongodb_version:
+            - '5.0'
+            - '6.0'
+            - '7.0'
+            - '8.0'
         os:
           - evg_variant: ubuntu2404
             image: ubuntu:24.04
@@ -43,6 +47,7 @@ jobs:
 
     services:
       mongo:
+        if: ${{ !matrix.os.runs_on }}
         image: mongo:${{ matrix.mongodb_version }}
 
     steps:
