@@ -41,6 +41,10 @@ jobs:
     container:
       image: ${{ matrix.os.image }}
 
+    services:
+      mongo:
+        image: mongo:${{ matrix.mongodb_version }}
+
     steps:
       - run: ${{ matrix.os.prep }}
 
@@ -50,26 +54,26 @@ jobs:
         with:
           go-version-file: 'go.mod'
 
-      - uses: supercharge/mongodb-github-action@1.11.0
-        if: ${{ !matrix.os.runs_on }}
-        with:
-          mongodb-version: ${{ matrix.mongodb_version }}
-          #mongodb-replica-set: test-rs
-          mongodb-port: 33333 # for integration tests
-
-      - if: ${{ !matrix.os.runs_on }}
-        run: |
-          apt install -y iproute2
-          ss -a
-
-      - if: ${{ !matrix.os.runs_on }}
-        run: |
-          apt install -y npm
-          npm install -g mongosh
-          mongosh --port 33333 --eval "db.serverStatus()"
-
-      - if: ${{ !matrix.os.runs_on }}
-        run: apt install -y docker; docker help; docker container ls
+#      - uses: supercharge/mongodb-github-action@1.11.0
+#        if: ${{ !matrix.os.runs_on }}
+#        with:
+#          mongodb-version: ${{ matrix.mongodb_version }}
+#          #mongodb-replica-set: test-rs
+#          mongodb-port: 33333 # for integration tests
+#
+#      - if: ${{ !matrix.os.runs_on }}
+#        run: |
+#          apt install -y iproute2
+#          ss -a
+#
+#      - if: ${{ !matrix.os.runs_on }}
+#        run: |
+#          apt install -y npm
+#          npm install -g mongosh
+#          mongosh --port 33333 --eval "db.serverStatus()"
+#
+#      - if: ${{ !matrix.os.runs_on }}
+#        run: apt install -y docker; docker help; docker container ls
 
       # So `git describe` works on forked branches:
       - run: git config --global --add safe.directory $GITHUB_WORKSPACE
@@ -86,3 +90,4 @@ jobs:
         run: ./make test:integration --verbose
         env:
           EVG_VARIANT: ${{ matrix.os.evg_variant }}
+          TOOLS_TESTING_MONGOD: mongodb://mongo
