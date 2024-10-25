@@ -63,7 +63,6 @@ jobs:
 
     services:
       mongo:
-        if: ${{ !matrix.os.runs_on }}
         image: mongo:${{ matrix.mongodb_version }}
 
     steps:
