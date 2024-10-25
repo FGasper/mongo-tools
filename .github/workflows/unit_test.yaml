@@ -6,16 +6,37 @@ on:
       - '*'
   pull_request:
 
+mongodb_versions: &mongodb_versions
+- '5.0'
+- '6.0'
+- '7.0'
+- '8.0'
+
 jobs:
-  testing:
+  unit-mac:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - run: git config --global --add safe.directory $GITHUB_WORKSPACE
+      - run: git remote add upstream https://github.com/mongodb/mongo-tools
+      - run: git fetch upstream --prune --unshallow --tags
+
+      - name: Unit tests
+        run: ./make test:unit --verbose
+        env:
+          EVG_VARIANT: macos
+
+  linux:
     strategy:
       fail-fast: false
       matrix:
-        mongodb_version:
-            - '5.0'
-            - '6.0'
-            - '7.0'
-            - '8.0'
+        mongodb_version: *mongodb_versions
         os:
           - evg_variant: ubuntu2404
             image: ubuntu:24.04
@@ -37,10 +58,7 @@ jobs:
             image: amazonlinux:2023
             prep: dnf install -y git gcc krb5-devel
 
-          - evg_variant: macos
-            runs_on: macos-latest
-
-    runs-on: ${{ matrix.os.runs_on || 'ubuntu-latest' }}
+    runs-on: 'ubuntu-latest'
 
     container:
       image: ${{ matrix.os.image }}
@@ -59,36 +77,10 @@ jobs:
         with:
           go-version-file: 'go.mod'
 
-#      - uses: supercharge/mongodb-github-action@1.11.0
-#        if: ${{ !matrix.os.runs_on }}
-#        with:
-#          mongodb-version: ${{ matrix.mongodb_version }}
-#          #mongodb-replica-set: test-rs
-#          mongodb-port: 33333 # for integration tests
-#
-#      - if: ${{ !matrix.os.runs_on }}
-#        run: |
-#          apt install -y iproute2
-#          ss -a
-#
-#      - if: ${{ !matrix.os.runs_on }}
-#        run: |
-#          apt install -y npm
-#          npm install -g mongosh
-#          mongosh --port 33333 --eval "db.serverStatus()"
-#
-#      - if: ${{ !matrix.os.runs_on }}
-#        run: apt install -y docker; docker help; docker container ls
-
       # So `git describe` works on forked branches:
       - run: git config --global --add safe.directory $GITHUB_WORKSPACE
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
       - run: git fetch upstream --prune --unshallow --tags
-
-      # - name: Unit tests
-      #   run: ./make test:unit --verbose
-      #   env:
-      #     EVG_VARIANT: ${{ matrix.os.evg_variant }}
 
       - name: Integration tests
         if: ${{ !matrix.os.runs_on }}
@@ -96,3 +88,9 @@ jobs:
         env:
           EVG_VARIANT: ${{ matrix.os.evg_variant }}
           TOOLS_TESTING_MONGOD: mongodb://mongo
+
+      - name: Unit tests
+        run: ./make test:unit --verbose
+        env:
+          EVG_VARIANT: ${{ matrix.os.evg_variant }}
+
