@@ -21,6 +21,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/x/mongo/driver/connstring"
 )
 
 // GetBareSession returns an mgo.Session from the environment or
@@ -84,6 +85,15 @@ func GetBareArgs() []string {
 	args = append(args, GetAuthArgs()...)
 	if uri := os.Getenv("TOOLS_TESTING_MONGOD"); uri != "" {
 		args = append(args, "--uri", uri)
+
+		cs, err := connstring.Parse(uri)
+		if err != nil {
+			panic("failed to parse TOOLS_TESTING_MONGOD: " + err.Error())
+		}
+
+		if cs.HasAuthParameters() {
+			args = append(args, "--authenticationDatabase", "admin")
+		}
 	} else {
 		args = append(args, "--host", "localhost", "--port", db.DefaultTestPort)
 	}
