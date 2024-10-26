@@ -32,8 +32,19 @@ var (
 	testServer = "localhost"
 	testPort   = db.DefaultTestPort
 
-	ssl       = testutil.GetSSLOptions()
-	auth      = testutil.GetAuthOptions()
+	ssl        = testutil.GetSSLOptions()
+	auth       = testutil.GetAuthOptions()
+	connection = &options.Connection{
+		Host: testServer,
+		Port: testPort,
+	}
+	toolOptions = &options.ToolOptions{
+		SSL:        &ssl,
+		Connection: connection,
+		Auth:       &auth,
+		Verbosity:  &options.Verbosity{},
+		URI:        &options.URI{},
+	}
 	testFiles = map[string]primitive.ObjectID{
 		"testfile1": primitive.NewObjectID(),
 		"testfile2": primitive.NewObjectID(),
@@ -42,35 +53,9 @@ var (
 	}
 )
 
-func getToolOptions() *options.ToolOptions {
-	opts := &options.ToolOptions{
-		SSL:        &ssl,
-		Connection: &options.Connection{},
-		Auth:       &auth,
-		Verbosity:  &options.Verbosity{},
-		URI:        &options.URI{},
-	}
-
-	if uriStr := os.Getenv("TOOLS_TESTING_MONGOD"); uriStr != "" {
-		uri, err := options.NewURI(uriStr)
-		if err != nil {
-			panic("failed to parse TOOLS_TESTING_MONGOD (" + uriStr + "): " + err.Error())
-		}
-
-		opts.URI = uri
-	} else {
-		opts.Connection = &options.Connection{
-			Host: "localhost",
-			Port: db.DefaultTestPort,
-		}
-	}
-
-	return opts
-}
-
 // put in some test data into GridFS.
 func setUpGridFSTestData() (map[string]int, error) {
-	sessionProvider, err := db.NewSessionProvider(*getToolOptions())
+	sessionProvider, err := db.NewSessionProvider(*toolOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +98,7 @@ func setUpGridFSTestData() (map[string]int, error) {
 
 // remove test data from GridFS.
 func tearDownGridFSTestData() error {
-	sessionProvider, err := db.NewSessionProvider(*getToolOptions())
+	sessionProvider, err := db.NewSessionProvider(*toolOptions)
 	if err != nil {
 		return err
 	}
@@ -152,13 +137,13 @@ func simpleMongoFilesInstanceWithMultipleFileNames(
 }
 
 func simpleMongoFilesInstanceWithFilenameAndID(command, fname, ID string) (*MongoFiles, error) {
-	sessionProvider, err := db.NewSessionProvider(*getToolOptions())
+	sessionProvider, err := db.NewSessionProvider(*toolOptions)
 	if err != nil {
 		return nil, err
 	}
 
 	mongofiles := MongoFiles{
-		ToolOptions:     getToolOptions(),
+		ToolOptions:     toolOptions,
 		InputOptions:    &InputOptions{},
 		StorageOptions:  &StorageOptions{GridFSPrefix: "fs", DB: testDB},
 		SessionProvider: sessionProvider,
@@ -174,7 +159,7 @@ func simpleMongoFilesInstanceWithFilenameAndID(command, fname, ID string) (*Mong
 // Use this for tests that don't communicate with the server (e.g. options parsing tests).
 func simpleMockMongoFilesInstanceWithFilename(command, fname string) *MongoFiles {
 	return &MongoFiles{
-		ToolOptions:    getToolOptions(),
+		ToolOptions:    toolOptions,
 		InputOptions:   &InputOptions{},
 		StorageOptions: &StorageOptions{GridFSPrefix: "fs", DB: testDB},
 		Command:        command,
@@ -822,10 +807,6 @@ func TestDefaultWriteConcern(t *testing.T) {
 	testtype.SkipUnlessTestType(t, testtype.IntegrationTestType)
 	if ssl.UseSSL {
 		t.Skip("Skipping non-SSL test with SSL configuration")
-	}
-
-	if getToolOptions().URI.ParsedConnString() != nil {
-		t.Skip("Skipping when run with a connection string from env.")
 	}
 
 	Convey("with a URI that doesn't specify write concern", t, func() {

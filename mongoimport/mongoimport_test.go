@@ -93,36 +93,26 @@ func countDocuments(sessionProvider *db.SessionProvider) (int, error) {
 // getBasicToolOptions returns a test helper to instantiate the session provider
 // for calls to StreamDocument.
 func getBasicToolOptions() *options.ToolOptions {
+	general := &options.General{}
 	ssl := testutil.GetSSLOptions()
 	auth := testutil.GetAuthOptions()
+	namespace := &options.Namespace{
+		DB:         testDb,
+		Collection: testCollection,
+	}
+	connection := &options.Connection{
+		Host: "localhost",
+		Port: db.DefaultTestPort,
+	}
 
-	opts := &options.ToolOptions{
-		General: &options.General{},
-		SSL:     &ssl,
-		Namespace: &options.Namespace{
-			DB:         testDb,
-			Collection: testCollection,
-		},
-		Connection: &options.Connection{},
+	return &options.ToolOptions{
+		General:    general,
+		SSL:        &ssl,
+		Namespace:  namespace,
+		Connection: connection,
 		Auth:       &auth,
 		URI:        &options.URI{},
 	}
-
-	if uriStr := os.Getenv("TOOLS_TESTING_MONGOD"); uriStr != "" {
-		uri, err := options.NewURI(uriStr)
-		if err != nil {
-			panic("failed to parse TOOLS_TESTING_MONGOD (" + uriStr + "): " + err.Error())
-		}
-
-		opts.URI = uri
-	} else {
-		opts.Connection = &options.Connection{
-			Host: "localhost",
-			Port: db.DefaultTestPort,
-		}
-	}
-
-	return opts
 }
 
 func newOptions() Options {
