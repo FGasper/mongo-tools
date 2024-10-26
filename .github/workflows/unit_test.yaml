@@ -79,12 +79,16 @@ jobs:
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
       - run: git fetch upstream --prune --unshallow --tags
 
+      - run: apt update && apt install -y socat
+
+      - run: socat tcp-listen:33333,reuseaddr,fork tcp:mongo:27017
+
       - name: Integration tests
         if: ${{ !matrix.os.runs_on }}
         run: ./make test:integration --verbose
         env:
           EVG_VARIANT: ${{ matrix.os.evg_variant }}
-          TOOLS_TESTING_MONGOD: mongodb://mongo
+          #TOOLS_TESTING_MONGOD: mongodb://mongo
 
       - name: Unit tests
         run: ./make test:unit --verbose
