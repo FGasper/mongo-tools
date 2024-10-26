@@ -38,23 +38,23 @@ jobs:
         os:
           - evg_variant: ubuntu2404
             image: ubuntu:24.04
-            prep: apt update && apt install -y git gcc libkrb5-dev
+            prep: apt update && apt install -y git gcc libkrb5-dev socat
 
           - evg_variant: ubuntu2204
             image: ubuntu:22.04
-            prep: apt update && apt install -y git gcc libkrb5-dev
+            prep: apt update && apt install -y git gcc libkrb5-dev socat
 
           - evg_variant: ubuntu2004
             image: ubuntu:20.04
-            prep: apt update && apt install -y git gcc libkrb5-dev
+            prep: apt update && apt install -y git gcc libkrb5-dev socat
 
           - evg_variant: rhel93
             image: redhat/ubi9:9.3
-            prep: dnf install -y git gcc krb5-devel
+            prep: dnf install -y git gcc krb5-devel socat
 
           - evg_variant: amazon2023
             image: amazonlinux:2023
-            prep: dnf install -y git gcc krb5-devel
+            prep: dnf install -y git gcc krb5-devel socat
 
     runs-on: 'ubuntu-latest'
 
@@ -79,9 +79,7 @@ jobs:
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
       - run: git fetch upstream --prune --unshallow --tags
 
-      - run: apt update && apt install -y socat
-
-      - run: socat tcp-listen:33333,reuseaddr,fork tcp:mongo:27017
+      - run: socat tcp-listen:33333,reuseaddr,fork tcp:mongo:27017 &
 
       - name: Integration tests
         if: ${{ !matrix.os.runs_on }}
