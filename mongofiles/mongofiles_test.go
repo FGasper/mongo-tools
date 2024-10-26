@@ -824,6 +824,10 @@ func TestDefaultWriteConcern(t *testing.T) {
 		t.Skip("Skipping non-SSL test with SSL configuration")
 	}
 
+	if getToolOptions().URI.ParsedConnString() != nil {
+		t.Skip("Skipping when run with a connection string from env.")
+	}
+
 	Convey("with a URI that doesn't specify write concern", t, func() {
 		mf, err := getMongofilesWithArgs("get", "filename", "--uri", "mongodb://localhost:33333")
 		So(err, ShouldBeNil)
