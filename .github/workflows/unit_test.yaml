@@ -26,7 +26,7 @@ jobs:
         env:
           EVG_VARIANT: macos
 
-  linux:
+  linux-integration:
     strategy:
       fail-fast: false
       matrix:
@@ -88,11 +88,12 @@ jobs:
       - run: git remote add upstream https://github.com/mongodb/mongo-tools
       - run: git fetch upstream --prune --unshallow --tags
 
+      # Port-forward between localhost:33333 and mongo:27017.
+      # Ideally we’d set the TOOLS_TESTING_MONGOD env variable instread,
+      # but some of the integration tests don’t check that and hard-code
+      # the localhost port instead.
       - run: socat tcp-listen:33333,reuseaddr,fork tcp:mongo:27017 &
 
       - name: Integration tests
         if: ${{ !matrix.os.runs_on }}
-        run: ./make test:integration --verbose
-
-      - name: Unit tests
-        run: ./make test:unit --verbose
+        run: ./make test:integration
