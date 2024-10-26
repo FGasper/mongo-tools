@@ -37,10 +37,8 @@ jobs:
           - '5.0'
           - '6.0'
           - '7.0'
-          - '7.1'
-          - '7.2'
-          - '7.3'
           - '8.0'
+          - latest
         os:
           - evg_variant: ubuntu2404
             image: ubuntu:24.04
