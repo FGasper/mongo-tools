@@ -58,7 +58,7 @@ jobs:
 
           - evg_variant: amazon2023
             image: amazonlinux:2023
-            prep: dnf install -y git gcc krb5-devel socat
+            prep: dnf install -y git gcc krb5-devel socat tar
 
     runs-on: 'ubuntu-latest'
 
