@@ -52,6 +52,10 @@ jobs:
             image: ubuntu:20.04
             prep: apt update && apt install -y git gcc libkrb5-dev socat
 
+          - evg_variant: rhel88
+            image: redhat/ubi8:8.8
+            prep: dnf install -y git gcc krb5-devel socat
+
           - evg_variant: rhel93
             image: redhat/ubi9:9.3
             prep: dnf install -y git gcc krb5-devel socat
