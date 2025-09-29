@@ -26,7 +26,7 @@ import (
 	"unicode/utf16"
 	"unicode/utf8"
 
-	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // Unmarshal parses the JSON-encoded data and stores the result

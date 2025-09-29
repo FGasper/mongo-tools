@@ -17,9 +17,9 @@ import (
 	"github.com/mongodb/mongo-tools/common/intents"
 	"github.com/mongodb/mongo-tools/common/log"
 	"github.com/mongodb/mongo-tools/common/util"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 // Specially treated restore collection types.
@@ -343,12 +343,12 @@ func (restore *MongoRestore) createCollectionWithApplyOps(
 		Operation string            `bson:"op"`
 		Namespace string            `bson:"ns"`
 		Object    bson.D            `bson:"o"`
-		UI        *primitive.Binary `bson:"ui,omitempty"`
+		UI        *bson.Binary `bson:"ui,omitempty"`
 	}{
 		Operation: "c",
 		Namespace: intent.DB + ".$cmd",
 		Object:    command,
-		UI:        &primitive.Binary{Subtype: 0x04, Data: uuid},
+		UI:        &bson.Binary{Subtype: 0x04, Data: uuid},
 	}
 
 	return restore.ApplyOps(session, []interface{}{createOp})

@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	mopts "go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readconcern"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	mopts "go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readconcern"
 )
 
 // ApplyOpsResponse represents the response from an 'applyOps' command.
@@ -20,7 +20,7 @@ type ApplyOpsResponse struct {
 
 // Oplog represents a MongoDB oplog document.
 type Oplog struct {
-	Timestamp   primitive.Timestamp `bson:"ts"`
+	Timestamp   bson.Timestamp `bson:"ts"`
 	Term        *int64              `bson:"t"`
 	Hash        *int64              `bson:"h,omitempty"`
 	Version     int                 `bson:"v"`
@@ -28,7 +28,7 @@ type Oplog struct {
 	Namespace   string              `bson:"ns"`
 	Object      bson.D              `bson:"o"`
 	Query       bson.D              `bson:"o2,omitempty"`
-	UI          *primitive.Binary   `bson:"ui,omitempty"`
+	UI          *bson.Binary   `bson:"ui,omitempty"`
 	LSID        bson.Raw            `bson:"lsid,omitempty"`
 	TxnNumber   *int64              `bson:"txnNumber,omitempty"`
 	PrevOpTime  bson.Raw            `bson:"prevOpTime,omitempty"`
@@ -62,7 +62,7 @@ func GetOpTimeFromRawOplogEntry(rawOplogEntry bson.Raw) (OpTime, error) {
 	}
 
 	opTime := OpTime{
-		Timestamp: primitive.Timestamp{T: t, I: i},
+		Timestamp: bson.Timestamp{T: t, I: i},
 		Term:      nil,
 		Hash:      nil,
 	}

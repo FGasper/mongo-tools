@@ -11,9 +11,9 @@ import (
 	"fmt"
 
 	"github.com/mongodb/mongo-tools/common/bsonutil"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	mopt "go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/bson/primitive"
+	mopt "go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 // Query flags.
@@ -269,7 +269,7 @@ func ApplyFlags(opts *mopt.FindOneOptions, flags int) {
 func (sp *SessionProvider) RunApplyOpsCreateIndex(
 	C, DB string,
 	index bson.D,
-	UUID *primitive.Binary,
+	UUID *bson.Binary,
 	result *interface{},
 ) error {
 	var op Oplog
