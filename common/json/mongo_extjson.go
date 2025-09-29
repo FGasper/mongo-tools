@@ -11,7 +11,6 @@ import (
 	"reflect"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/bson/primitive"
 )
 
 // Represents base-64 encoded binary data.

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/mongodb/mongo-tools/common/util"
-	"go.mongodb.org/mongo-driver/v2/bson/primitive"
 )
 
 // OpTime represents the values to uniquely identify an oplog entry.

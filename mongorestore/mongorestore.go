@@ -31,7 +31,6 @@ import (
 	"github.com/mongodb/mongo-tools/common/progress"
 	"github.com/mongodb/mongo-tools/common/util"
 	"github.com/mongodb/mongo-tools/mongorestore/ns"
-	"go.mongodb.org/mongo-driver/v2/bson/primitive"
 )
 
 const (

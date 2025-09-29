@@ -14,7 +14,6 @@ import (
 	"github.com/mongodb/mongo-tools/common/json"
 	"github.com/mongodb/mongo-tools/common/util"
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/bson/primitive"
 )
 
 // ConvertLegacyExtJSONValueToBSON walks through a document or an array and
