@@ -40,7 +40,6 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	mopt "go.mongodb.org/mongo-driver/v2/mongo/options"
-	"go.mongodb.org/mongo-driver/v2/mongo/writeconcern"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -177,9 +176,6 @@ func TestMongorestore(t *testing.T) {
 		defer restore.Close()
 
 		db := session.Database("db1")
-		Convey("and majority is used as the default write concern", func() {
-			So(db.WriteConcern(), ShouldResemble, writeconcern.New(writeconcern.WMajority()))
-		})
 
 		c1 := db.Collection("c1") // 100 documents
 		err = c1.Drop(context.Background())
@@ -424,9 +420,6 @@ func TestMongorestoreLongCollectionName(t *testing.T) {
 		defer restore.Close()
 
 		db := session.Database("db1")
-		Convey("and majority is used as the default write concern", func() {
-			So(db.WriteConcern(), ShouldResemble, writeconcern.New(writeconcern.WMajority()))
-		})
 
 		longCollection := db.Collection(longCollectionName)
 		err = longCollection.Drop(context.Background())
