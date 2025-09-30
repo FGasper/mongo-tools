@@ -12,6 +12,7 @@ import (
 	"github.com/mongodb/mongo-tools/common/json"
 	"github.com/mongodb/mongo-tools/common/testtype"
 	. "github.com/smartystreets/goconvey/convey"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func TestObjectIdValue(t *testing.T) {

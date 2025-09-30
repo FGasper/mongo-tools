@@ -172,7 +172,7 @@ func ParseSpecialKeys(special interface{}) (interface{}, error) {
 	var doc map[string]interface{}
 	switch v := special.(type) {
 	case bson.D:
-		doc = v.Map()
+		doc = DtoM(v)
 	case map[string]interface{}:
 		doc = v
 	default:
@@ -186,7 +186,7 @@ func ParseSpecialKeys(special interface{}) (interface{}, error) {
 			case string:
 				return util.FormatDate(v)
 			case bson.D:
-				asMap := v.Map()
+				asMap := DtoM(v)
 				if jsonValue, ok := asMap["$numberLong"]; ok {
 					n, err := parseNumberLongField(jsonValue)
 					if err != nil {
@@ -267,7 +267,7 @@ func ParseSpecialKeys(special interface{}) (interface{}, error) {
 			case map[string]interface{}:
 				tsDoc = internalDoc
 			case bson.D:
-				tsDoc = internalDoc.Map()
+				tsDoc = DtoM(internalDoc)
 			default:
 				return nil, errors.New("expected $timestamp key to have internal document")
 			}
@@ -470,6 +470,17 @@ func MtoD(m bson.M) bson.D {
 		doc = append(doc, bson.E{key, value})
 	}
 	return doc
+}
+
+// DtoM converts a bson.D to a bson.M.
+func DtoM(d bson.D) bson.M {
+	m := bson.M{}
+
+	for _, el := range d {
+		m[el.Key] = el.Value
+	}
+
+	return m
 }
 
 // MarshalExtJSONReversible is a wrapper around bson.MarshalExtJSON function,

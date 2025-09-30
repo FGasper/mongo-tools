@@ -10,7 +10,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -31,7 +30,7 @@ type BufferedBulkInserter struct {
 	docCount      int
 	byteCount     int
 	byteLimit     int
-	bulkWriteOpts *options.BulkWriteOptions
+	bulkWriteOpts *options.BulkWriteOptionsBuilder
 	upsert        bool
 }
 
@@ -44,7 +43,7 @@ func newBufferedBulkInserter(
 	bulkOpts := options.BulkWrite().SetOrdered(ordered)
 
 	if MongoCanAcceptLiteralZeroTimestamp(serverVersion) {
-		bulkOpts.BypassEmptyTsReplacement = lo.ToPtr(true)
+		bulkOpts.SetBypassEmptyTsReplacement(true)
 	}
 
 	bb := &BufferedBulkInserter{

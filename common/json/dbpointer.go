@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 // Transition functions for recognizing DBPointer.

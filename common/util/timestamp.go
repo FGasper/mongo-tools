@@ -6,8 +6,7 @@
 
 package util
 
-import (
-)
+import "go.mongodb.org/mongo-driver/v2/bson"
 
 // TimestampGreaterThan returns true if lhs comes after rhs, false otherwise.
 func TimestampGreaterThan(lhs, rhs bson.Timestamp) bool {

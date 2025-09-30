@@ -334,7 +334,7 @@ func configureClient(opts options.ToolOptions) (*mongo.Client, error) {
 	}
 
 	clientopt.SetConnectTimeout(time.Duration(opts.Timeout) * time.Second)
-	clientopt.SetSocketTimeout(time.Duration(opts.SocketTimeout) * time.Second)
+	clientopt.SetTimeout(time.Duration(opts.SocketTimeout) * time.Second)
 	if opts.ServerSelectionTimeout > 0 {
 		clientopt.SetServerSelectionTimeout(
 			time.Duration(opts.ServerSelectionTimeout) * time.Second,
@@ -397,8 +397,10 @@ func configureClient(opts options.ToolOptions) (*mongo.Client, error) {
 	}
 
 	if cs.ReadConcernLevel != "" {
-		rc := readconcern.New(readconcern.Level(cs.ReadConcernLevel))
-		clientopt.SetReadConcern(rc)
+		rc := readconcern.ReadConcern{
+			Level: cs.ReadConcernLevel,
+		}
+		clientopt.SetReadConcern(&rc)
 	}
 
 	if cs.ReadPreference != "" || len(cs.ReadPreferenceTagSets) > 0 || cs.MaxStalenessSet {
@@ -562,7 +564,7 @@ func configureClient(opts options.ToolOptions) (*mongo.Client, error) {
 		clientopt.SetDisableOCSPEndpointCheck(cs.SSLDisableOCSPEndpointCheck)
 	}
 
-	return mongo.NewClient(clientopt)
+	return mongo.Connect(clientopt)
 }
 
 // FilterError determines whether an error needs to be propagated back to the user or can be continued through. If an

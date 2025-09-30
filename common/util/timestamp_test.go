@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/mongodb/mongo-tools/common/testtype"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 func TestTimestampComparisons(t *testing.T) {

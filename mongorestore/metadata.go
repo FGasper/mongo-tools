@@ -339,9 +339,9 @@ func (restore *MongoRestore) createCollectionWithApplyOps(
 	}
 
 	createOp := struct {
-		Operation string            `bson:"op"`
-		Namespace string            `bson:"ns"`
-		Object    bson.D            `bson:"o"`
+		Operation string       `bson:"op"`
+		Namespace string       `bson:"ns"`
+		Object    bson.D       `bson:"o"`
 		UI        *bson.Binary `bson:"ui,omitempty"`
 	}{
 		Operation: "c",
