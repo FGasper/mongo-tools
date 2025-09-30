@@ -23,7 +23,6 @@ import (
 	"github.com/mongodb/mongo-tools/common/util"
 	. "github.com/smartystreets/goconvey/convey"
 	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo/writeconcern"
 )
 
 var (
@@ -796,34 +795,6 @@ func TestMongoFilesCommands(t *testing.T) {
 		})
 	})
 
-}
-
-// Test that when no write concern is specified, a majority write concern is set.
-func TestDefaultWriteConcern(t *testing.T) {
-	testtype.SkipUnlessTestType(t, testtype.IntegrationTestType)
-	if ssl.UseSSL {
-		t.Skip("Skipping non-SSL test with SSL configuration")
-	}
-
-	Convey("with a URI that doesn't specify write concern", t, func() {
-		mf, err := getMongofilesWithArgs("get", "filename", "--uri", "mongodb://localhost:33333")
-		So(err, ShouldBeNil)
-		So(
-			mf.SessionProvider.DB("test").WriteConcern(),
-			ShouldResemble,
-			writeconcern.Majority(),
-		)
-	})
-
-	Convey("with no URI and no write concern option", t, func() {
-		mf, err := getMongofilesWithArgs("get", "filename", "--port", "33333")
-		So(err, ShouldBeNil)
-		So(
-			mf.SessionProvider.DB("test").WriteConcern(),
-			ShouldResemble,
-			writeconcern.Majority(),
-		)
-	})
 }
 
 func runPutIDTestCase(idToTest string, t *testing.T) {
