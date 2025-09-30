@@ -14,6 +14,7 @@ import (
 	"github.com/mongodb/mongo-tools/common/json"
 	"github.com/mongodb/mongo-tools/common/log"
 	"github.com/mongodb/mongo-tools/common/util"
+	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/v2/mongo/writeconcern"
 	"go.mongodb.org/mongo-driver/v2/x/mongo/driver/connstring"
 )
@@ -54,26 +55,33 @@ func NewMongoWriteConcern(
 // constructWCFromConnString takes in a parsed connection string and
 // extracts values from it. If the ConnString has no write concern value, it defaults
 // to 'majority'.
-func constructWCFromConnString(cs *connstring.ConnString) (*writeconcern.WriteConcern, error) {
-	var opts []writeconcern.Option
+func constructWCFromConnString(cs *connstring.ConnString) (*writeconcern.WriteConcern, *time.Duration, error) {
+	wc := &writeconcern.WriteConcern{}
 
 	switch {
 	case cs.WNumberSet:
 		if cs.WNumber < 0 {
-			return nil, fmt.Errorf("invalid 'w' argument: %v", cs.WNumber)
+			return nil, nil, fmt.Errorf("invalid 'w' argument: %v", cs.WNumber)
 		}
 
-		opts = append(opts, writeconcern.W(cs.WNumber))
+		wc.W = cs.WNumber
 	case cs.WString != "":
-		opts = append(opts, writeconcern.WTagSet(cs.WString))
+		wc.W = cs.WString
 	default:
-		opts = append(opts, writeconcern.WMajority())
+		wc = writeconcern.Majority()
 	}
 
-	opts = append(opts, writeconcern.J(cs.J))
-	opts = append(opts, writeconcern.WTimeout(cs.WTimeout))
+	if cs.JSet {
+		wc.Journal = lo.ToPtr(cs.J)
+	}
 
-	return writeconcern.New(opts...), nil
+	wtimeout := lo.Ternary(
+		cs.TimeoutSet,
+		lo.ToPtr(cs.Timeout),
+		nil,
+	)
+
+	return wc, wtimeout, nil
 }
 
 // constructWCFromString takes in a write concern and attempts to
