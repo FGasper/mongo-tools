@@ -68,7 +68,7 @@ func newGfsFileFromCursor(cursor *mongo.Cursor, mf *MongoFiles) (*gfsFile, error
 // OpenStreamForWriting opens a stream for uploading data to a GridFS file that must be closed.
 func (file *gfsFile) OpenStreamForWriting() (*gridfs.UploadStream, error) {
 	uploadOpts := options.GridFSUpload()
-	uploadOpts.Metadata = file.Metadata
+	uploadOpts.SetMetadata(file.Metadata)
 	stream, err := file.mf.bucket.OpenUploadStreamWithID(file.ID, file.Name, uploadOpts)
 	if err != nil {
 		return nil, fmt.Errorf("could not open upload stream: %v", err)

@@ -544,7 +544,7 @@ func (restore *MongoRestore) RestoreUsersOrRoles(users, roles *intents.Intent) e
 		bson.E{Key: "db", Value: userTargetDB})
 
 	if restore.ToolOptions.WriteConcern != nil {
-		_, wcBson, err := restore.ToolOptions.WriteConcern.MarshalBSONValue()
+		_, wcBson, err := bson.MarshalValue(restore.ToolOptions.WriteConcern)
 		if err != nil {
 			return fmt.Errorf("error parsing write concern: %v", err)
 		}
