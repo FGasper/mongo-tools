@@ -22,7 +22,6 @@ import (
 	"github.com/mongodb/mongo-tools/common/testutil"
 	"github.com/mongodb/mongo-tools/common/util"
 	. "github.com/smartystreets/goconvey/convey"
-	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo/writeconcern"
 )
@@ -67,14 +66,11 @@ func setUpGridFSTestData() (map[string]int, error) {
 	bytesExpected := map[string]int{}
 
 	testDb := session.Database(testDB)
-	bucket, err := gridfs.NewBucket(testDb)
-	if err != nil {
-		return nil, err
-	}
+	bucket := testDb.GridFSBucket()
 
 	i := 0
 	for item, id := range testFiles {
-		stream, err := bucket.OpenUploadStreamWithID(id, item)
+		stream, err := bucket.OpenUploadStreamWithID(context.TODO(), id, item)
 		if err != nil {
 			return nil, err
 		}
@@ -815,7 +811,7 @@ func TestDefaultWriteConcern(t *testing.T) {
 		So(
 			mf.SessionProvider.DB("test").WriteConcern(),
 			ShouldResemble,
-			writeconcern.New(writeconcern.WMajority()),
+			writeconcern.Majority(),
 		)
 	})
 
@@ -825,7 +821,7 @@ func TestDefaultWriteConcern(t *testing.T) {
 		So(
 			mf.SessionProvider.DB("test").WriteConcern(),
 			ShouldResemble,
-			writeconcern.New(writeconcern.WMajority()),
+			writeconcern.Majority(),
 		)
 	})
 }

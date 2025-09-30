@@ -19,8 +19,8 @@ import (
 	"github.com/mongodb/mongo-tools/common/log"
 	"github.com/mongodb/mongo-tools/common/options"
 	"github.com/mongodb/mongo-tools/common/util"
-	"go.mongodb.org/mongo-driver/mongo/gridfs"
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 	driverOptions "go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
@@ -70,7 +70,7 @@ type MongoFiles struct {
 	FileNameRegex string
 
 	// GridFS bucket to operate on
-	bucket *gridfs.Bucket
+	bucket *mongo.GridFSBucket
 }
 
 // New constructs a new mongofiles instance from the provided options. Will fail if cannot connect to server or if the
@@ -239,7 +239,7 @@ func (mf *MongoFiles) handleGet() (err error) {
 
 // Gets all GridFS files that match the given query.
 func (mf *MongoFiles) findGFSFiles(query bson.M) (files []*gfsFile, err error) {
-	cursor, err := mf.bucket.Find(query)
+	cursor, err := mf.bucket.Find(context.TODO(), query)
 	if err != nil {
 		return nil, err
 	}
@@ -492,14 +492,9 @@ func (mf *MongoFiles) Run(displayHost bool) (output string, finalErr error) {
 		return "", fmt.Errorf("error connecting to host: %v", err)
 	}
 
-	database := client.Database(mf.StorageOptions.DB)
-	mf.bucket, err = gridfs.NewBucket(
-		database,
-		&driverOptions.BucketOptions{Name: &mf.StorageOptions.GridFSPrefix},
+	mf.bucket = client.Database(mf.StorageOptions.DB).GridFSBucket(
+		driverOptions.GridFSBucket().SetName(mf.StorageOptions.GridFSPrefix),
 	)
-	if err != nil {
-		return "", fmt.Errorf("error getting GridFS bucket: %v", err)
-	}
 
 	if displayHost {
 		log.Logvf(
