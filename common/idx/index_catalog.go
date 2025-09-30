@@ -212,13 +212,10 @@ func (i *IndexCatalog) DeleteIndexes(database, collection string, dropCmd bson.D
 			var idIndexName string
 			var idIndex *IndexDocument
 			for name, doc := range catalog.indexes {
-				keyMap := doc.Key.Map()
-				if len(keyMap) == 1 {
-					if _, isId := keyMap["_id"]; isId {
-						idIndexName = name
-						idIndex = doc
-						break
-					}
+				if len(doc.Key) == 1 && doc.Key[0].Key == "_id" {
+					idIndexName = name
+					idIndex = doc
+					break
 				}
 			}
 

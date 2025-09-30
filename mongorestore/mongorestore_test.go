@@ -2915,7 +2915,7 @@ func TestRestoreZeroTimestamp(t *testing.T) {
 				}},
 			}}},
 		},
-		mopt.Update().SetUpsert(true),
+		mopt.UpdateOne().SetUpsert(true),
 	)
 	require.NoError(err, "should insert (via update/upsert)")
 
@@ -2985,7 +2985,7 @@ func TestRestoreZeroTimestamp_NonClobber(t *testing.T) {
 				}},
 			}}},
 		},
-		mopt.Update().SetUpsert(true),
+		mopt.UpdateOne().SetUpsert(true),
 	)
 	require.NoError(err, "should insert (via update/upsert)")
 

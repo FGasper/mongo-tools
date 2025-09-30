@@ -7,6 +7,7 @@
 package mongofiles
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -68,7 +69,7 @@ func newGfsFileFromCursor(cursor *mongo.Cursor, mf *MongoFiles) (*gfsFile, error
 func (file *gfsFile) OpenStreamForWriting() (*mongo.GridFSUploadStream, error) {
 	uploadOpts := options.GridFSUpload()
 	uploadOpts.SetMetadata(file.Metadata)
-	stream, err := file.mf.bucket.OpenUploadStreamWithID(file.ID, file.Name, uploadOpts)
+	stream, err := file.mf.bucket.OpenUploadStreamWithID(context.TODO(), file.ID, file.Name, uploadOpts)
 	if err != nil {
 		return nil, fmt.Errorf("could not open upload stream: %v", err)
 	}
@@ -78,7 +79,7 @@ func (file *gfsFile) OpenStreamForWriting() (*mongo.GridFSUploadStream, error) {
 
 // OpenStreamForReading opens a stream for reading data from a GridFS file that must be closed.
 func (file *gfsFile) OpenStreamForReading() (*mongo.GridFSDownloadStream, error) {
-	stream, err := file.mf.bucket.OpenDownloadStream(file.ID)
+	stream, err := file.mf.bucket.OpenDownloadStream(context.TODO(), file.ID)
 	if err != nil {
 		return nil, fmt.Errorf("could not open download stream: %v", err)
 	}
@@ -89,7 +90,7 @@ func (file *gfsFile) OpenStreamForReading() (*mongo.GridFSDownloadStream, error)
 // Deletes the corresponding GridFS file in the database and its chunks.
 // Note: this file must be closed if it had been written to before being deleted. Any download streams will be closed as part of this deletion.
 func (file *gfsFile) Delete() error {
-	if err := file.mf.bucket.Delete(file.ID); err != nil {
+	if err := file.mf.bucket.Delete(context.TODO(), file.ID); err != nil {
 		return fmt.Errorf("error while removing '%v' from GridFS: %v", file.Name, err)
 	}
 

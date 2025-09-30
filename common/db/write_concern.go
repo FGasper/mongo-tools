@@ -83,7 +83,7 @@ func constructWCFromString(writeConcern string) (*writeconcern.WriteConcern, err
 
 	// Default case
 	if writeConcern == "" {
-		return writeconcern.New(writeconcern.WMajority()), nil
+		return writeconcern.Majority(), nil
 	}
 
 	// Try to unmarshal as JSON document
