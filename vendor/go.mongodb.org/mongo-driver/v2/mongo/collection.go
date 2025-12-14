@@ -246,10 +246,11 @@ func (coll *Collection) BulkWrite(ctx context.Context, models []WriteModel,
 		writeConcern:             wc,
 		let:                      args.Let,
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op.rawData = &rawData
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op.rawData = &rawData
+	}
+	if additionalCmd, ok := optionsutil.Value(args.Internal, "addCommandFields").(bson.D); ok {
+		op.additionalCmd = additionalCmd
 	}
 
 	err = op.execute(ctx)
@@ -330,10 +331,11 @@ func (coll *Collection) insert(
 	if args.Ordered != nil {
 		op = op.Ordered(*args.Ordered)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
+	}
+	if additionalCmd, ok := optionsutil.Value(args.Internal, "addCommandFields").(bson.D); ok {
+		op = op.AdditionalCmd(additionalCmd)
 	}
 	retry := driver.RetryNone
 	if coll.client.retryWrites {
@@ -388,7 +390,14 @@ func (coll *Collection) InsertOne(ctx context.Context, document any,
 	}
 	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
 		imOpts.Opts = append(imOpts.Opts, func(opts *options.InsertManyOptions) error {
-			optionsutil.WithValue(opts.Internal, "rawData", rawDataOpt)
+			opts.Internal = optionsutil.WithValue(opts.Internal, "rawData", rawDataOpt)
+
+			return nil
+		})
+	}
+	if additionalCmd := optionsutil.Value(args.Internal, "addCommandFields"); additionalCmd != nil {
+		imOpts.Opts = append(imOpts.Opts, func(opts *options.InsertManyOptions) error {
+			opts.Internal = optionsutil.WithValue(opts.Internal, "addCommandFields", additionalCmd)
 
 			return nil
 		})
@@ -552,10 +561,8 @@ func (coll *Collection) delete(
 		}
 		op = op.Let(let)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 
 	// deleteMany cannot be retried
@@ -705,10 +712,11 @@ func (coll *Collection) updateOrReplace(
 		}
 		op = op.Comment(comment)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
+	}
+	if additionalCmd, ok := optionsutil.Value(args.Internal, "addCommandFields").(bson.D); ok {
+		op = op.AdditionalCmd(additionalCmd)
 	}
 	retry := driver.RetryNone
 	// retryable writes are only enabled updateOne/replaceOne operations
@@ -1067,10 +1075,8 @@ func aggregate(a aggregateParams, opts ...options.Lister[options.AggregateOption
 		}
 		op.CustomOptions(customOptions)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 
 	retry := driver.RetryNone
@@ -1092,7 +1098,13 @@ func aggregate(a aggregateParams, opts ...options.Lister[options.AggregateOption
 	if err != nil {
 		return nil, wrapErrors(err)
 	}
-	cursor, err := newCursorWithSession(bc, a.client.bsonOpts, a.registry, sess)
+	cursor, err := newCursorWithSession(bc, a.client.bsonOpts, a.registry, sess,
+
+		// The only way the server will return a tailable/awaitData cursor for an
+		// aggregate operation is for the first stage in the pipeline to
+		// be $changeStream, this is the only time maxAwaitTimeMS should be applied.
+		// For this reason, we pass the client timeout to the cursor.
+		withCursorOptionClientTimeout(a.client.timeout))
 	return cursor, wrapErrors(err)
 }
 
@@ -1160,10 +1172,8 @@ func (coll *Collection) CountDocuments(ctx context.Context, filter any,
 		}
 		op.Hint(hintVal)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 	retry := driver.RetryNone
 	if coll.client.retryReads {
@@ -1246,10 +1256,8 @@ func (coll *Collection) EstimatedDocumentCount(
 		}
 		op = op.Comment(comment)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 
 	retry := driver.RetryNone
@@ -1340,10 +1348,8 @@ func (coll *Collection) Distinct(
 		}
 		op.Hint(hint)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 	retry := driver.RetryNone
 	if coll.client.retryReads {
@@ -1548,10 +1554,8 @@ func (coll *Collection) find(
 		}
 		op.Sort(sort)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 	retry := driver.RetryNone
 	if coll.client.retryReads {
@@ -1567,7 +1571,9 @@ func (coll *Collection) find(
 	if err != nil {
 		return nil, wrapErrors(err)
 	}
-	return newCursorWithSession(bc, coll.bsonOpts, coll.registry, sess)
+
+	return newCursorWithSession(bc, coll.bsonOpts, coll.registry, sess,
+		withCursorOptionClientTimeout(coll.client.timeout))
 }
 
 func newFindArgsFromFindOneArgs(args *options.FindOneOptions) *options.FindOptions {
@@ -1749,10 +1755,8 @@ func (coll *Collection) FindOneAndDelete(
 		}
 		op = op.Let(let)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 
 	return coll.findAndModify(ctx, op)
@@ -1851,10 +1855,11 @@ func (coll *Collection) FindOneAndReplace(
 		}
 		op = op.Let(let)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
+	}
+	if additionalCmd, ok := optionsutil.Value(args.Internal, "addCommandFields").(bson.D); ok {
+		op = op.AdditionalCmd(additionalCmd)
 	}
 
 	return coll.findAndModify(ctx, op)
@@ -1965,10 +1970,11 @@ func (coll *Collection) FindOneAndUpdate(
 		}
 		op = op.Let(let)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
+	}
+	if additionalCmd, ok := optionsutil.Value(args.Internal, "addCommandFields").(bson.D); ok {
+		op = op.AdditionalCmd(additionalCmd)
 	}
 
 	return coll.findAndModify(ctx, op)

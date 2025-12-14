@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ccoveille/go-safecast/v2"
 	"github.com/mongodb/mongo-tools/common/bsonutil"
 	"github.com/mongodb/mongo-tools/common/db"
 	"github.com/mongodb/mongo-tools/common/dumprestore"
@@ -21,6 +22,9 @@ import (
 	"github.com/mongodb/mongo-tools/common/progress"
 	"github.com/mongodb/mongo-tools/common/txn"
 	"github.com/mongodb/mongo-tools/common/util"
+	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"golang.org/x/exp/slices"
@@ -57,6 +61,10 @@ var errorTimestampBeforeLimit = fmt.Errorf("timestamp before limit")
 
 // shouldIgnoreNamespace returns true if the given namespace should be ignored during applyOps.
 func shouldIgnoreNamespace(ns string) bool {
+	if strings.HasPrefix(ns, util.MongoDBInternalDBPrefix) {
+		return true
+	}
+
 	if strings.HasPrefix(ns, "config.") {
 		collName := ns[7:]
 		if !slices.Contains(dumprestore.ConfigCollectionsToKeep, collName) {
@@ -467,7 +475,17 @@ func ParseTimestampFlag(ts string) (bson.Timestamp, error) {
 		}
 	}
 
-	return bson.Timestamp{T: uint32(seconds), I: uint32(increment)}, nil
+	secsU32, err := safecast.Convert[uint32](seconds)
+	if err != nil {
+		return bson.Timestamp{}, errors.Wrapf(err, "secs (%d) to %T", seconds, secsU32)
+	}
+
+	incU32, err := safecast.Convert[uint32](increment)
+	if err != nil {
+		return bson.Timestamp{}, errors.Wrapf(err, "increment (%d) to %T", increment, incU32)
+	}
+
+	return bson.Timestamp{T: secsU32, I: incU32}, nil
 }
 
 // Server versions 3.6.0-3.6.8 and 4.0.0-4.0.2 require a 'ui' field

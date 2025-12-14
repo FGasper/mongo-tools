@@ -102,10 +102,8 @@ func (iv IndexView) List(ctx context.Context, opts ...options.Lister[options.Lis
 		op = op.BatchSize(*args.BatchSize)
 		cursorOpts.BatchSize = *args.BatchSize
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 
 	retry := driver.RetryNone
@@ -131,7 +129,12 @@ func (iv IndexView) List(ctx context.Context, opts ...options.Lister[options.Lis
 		closeImplicitSession(sess)
 		return nil, wrapErrors(err)
 	}
-	cursor, err := newCursorWithSession(bc, iv.coll.bsonOpts, iv.coll.registry, sess)
+	cursor, err := newCursorWithSession(bc, iv.coll.bsonOpts, iv.coll.registry, sess,
+
+		// This value is included for completeness, but a server will never return
+		// a tailable awaitData cursor from a listIndexes operation.
+		withCursorOptionClientTimeout(iv.coll.client.timeout))
+
 	return cursor, wrapErrors(err)
 }
 
@@ -285,10 +288,8 @@ func (iv IndexView) CreateMany(
 
 		op.CommitQuorum(commitQuorum)
 	}
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 
 	_, err = processWriteError(op.Execute(ctx))
@@ -424,10 +425,8 @@ func (iv IndexView) drop(ctx context.Context, index any, opts ...options.Lister[
 		Deployment(iv.coll.client.deployment).ServerAPI(iv.coll.client.serverAPI).
 		Timeout(iv.coll.client.timeout).Crypt(iv.coll.client.cryptFLE).Authenticator(iv.coll.client.authenticator)
 
-	if rawDataOpt := optionsutil.Value(args.Internal, "rawData"); rawDataOpt != nil {
-		if rawData, ok := rawDataOpt.(bool); ok {
-			op = op.RawData(rawData)
-		}
+	if rawData, ok := optionsutil.Value(args.Internal, "rawData").(bool); ok {
+		op = op.RawData(rawData)
 	}
 
 	err = op.Execute(ctx)
