@@ -21,8 +21,6 @@ import (
 	"github.com/mongodb/mongo-tools/common/options"
 	"github.com/mongodb/mongo-tools/common/util"
 	"github.com/pkg/errors"
-	"go.mongodb.org/mongo-driver/bson"
-	driverOptions "go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	driverOptions "go.mongodb.org/mongo-driver/v2/mongo/options"
